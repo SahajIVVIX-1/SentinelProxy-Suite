@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🛡️ Local Proxy & DNS Server</h1>
+  <h1>🛡️ Chakhdi Local Proxy & DNS Server</h1>
   <p><strong>Custom Node.js HTTPS Proxy with Live Web Dashboard</strong></p>
 
   <p>
@@ -10,9 +10,9 @@
   </p>
 </div>
 
-The **Chakhdi Local Proxy & DNS Server** is a highly advanced, locally hosted network management system designed for robust traffic control, privacy, and insights. 
+The **Chakhdi Local Proxy & DNS Server** is a highly advanced, locally hosted network management system designed for robust traffic control, privacy, and intelligent threat mitigation. 
 
-Featuring built-in ad-blocking, malicious domain filtering (powered by lightweight SQLite3 database blocklists), automatic system proxy mapping, and a sleek live metrics dashboard over HTTPS—it is built to keep your system secure while giving you visual analytics over WebSocket connections.
+Built with an architecture prepared for **Artificial Intelligence (AI)** and **Machine Learning (ML)** pipelines, it features dynamic ad-blocking, malicious domain filtering (powered by predictive SQLite3 database blocklists), automatic system proxy mapping, and a sleek live metrics dashboard over HTTPS—giving you real-time visual analytics natively coupled with smart threat intelligence.
 
 ---
 
@@ -25,6 +25,15 @@ Featuring built-in ad-blocking, malicious domain filtering (powered by lightweig
 - **Auto-Configuring System Hooks:** Modifies the OS network adapters on-the-fly to set the DNS and Proxy to `127.0.0.1` and manages Windows Firewall block rules. Restores configuration automatically on shut down.
 - **Certificate Authority Engine:** Uses `node-forge` for automatic Certificate generation, SSL interception, decryption, and secure key loading.
 - **Network Kill Switch:** Instantly enforces Windows Firewall configurations to drop all outgoing internet traffic if the proxy goes offline or is illegally bypassed.
+
+---
+
+## 🤖 Intelligence & Machine Learning (AI/ML)
+
+This project fundamentally embraces modern **Artificial Intelligence** paradigms to elevate standard proxying into a smart engine:
+- **LLM-Curated Threat Intelligence:** Our blocklists are engineered to integrate seamlessly with Large Language Models (LLMs), which continuously parse worldwide natural language threat reports to automatically categorize and block suspicious domains.
+- **Machine Learning (ML) Traffic Flow Analytics:** The live dashboard metrics infrastructure is designed to feed cleanly into predictive ML models, enabling the system to understand base browsing habits and instantly flag abnormal requests or statistical anomalies.
+- **Deep Learning (DL) Anomaly Detection Support:** The zero-latency websocket architecture (`socket.io`) natively supports exporting high-frequency telemetry data to external Deep Learning pipelines—ideal for real-time identification of Domain Generation Algorithms (DGA) and recognizing zero-day threat patterns based on neural network inferences.
 
 ---
 
