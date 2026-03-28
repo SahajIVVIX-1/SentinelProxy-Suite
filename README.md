@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🛡️ Chakhdi Local Proxy & DNS Server</h1>
+  <h1>🛡️ Local Proxy & DNS Server</h1>
   <p><strong>Custom Node.js HTTPS Proxy with Live Web Dashboard</strong></p>
 
   <p>
