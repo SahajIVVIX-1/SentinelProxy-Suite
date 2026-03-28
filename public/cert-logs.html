@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Logs • Chakhdi.local</title>
+    <script>
+        if (sessionStorage.getItem('dashboardAuth') !== 'true') {
+            window.location.href = window.location.origin + '/login';
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/sidebar.css">
+    <script src="/assets/modal.js"></script>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📜</text></svg>">
+    <style>
+        :root {
+            --bg: #030308;
+            --surface: #0a0a14;
+            --surface-hover: #121225;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-primary: #e0e0ff;
+            --text-secondary: #8888aa;
+            --accent: #00f3ff;
+            --accent-glow: rgba(0, 243, 255, 0.3);
+            --danger: #ff0044;
+            --success: #00ff88;
+            --warning: #ffcc00;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        /* Page Fade-in Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.4s ease-out;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--accent), #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent), #00aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .panel {
+            background: linear-gradient(145deg, rgba(10, 10, 20, 0.9), rgba(18, 18, 37, 0.6));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: visible;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, rgba(255, 0, 68, 0.25), rgba(255, 0, 68, 0.15));
+            border-color: rgba(255, 0, 68, 0.6);
+            color: #ff4466;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, rgba(255, 0, 68, 0.35), rgba(255, 0, 68, 0.2));
+            border-color: var(--danger);
+            color: #ff6688;
+            box-shadow: 0 0 25px rgba(255, 0, 68, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .search-box {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            width: 100%;
+            margin-bottom: 15px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: var(--accent);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .log-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 6px;
+        }
+
+        .log-item {
+            display: grid;
+            grid-template-columns: 140px 1fr 150px 120px 150px 60px;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: 0.2s;
+            font-size: 0.85rem;
+            margin-right: 6px;
+        }
+
+        .log-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(0, 243, 255, 0.3);
+            transform: translateX(2px);
+        }
+
+        .log-item.new-cert {
+            border-left: 3px solid var(--success);
+        }
+
+        .log-item.cached {
+            border-left: 3px solid var(--warning);
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .log-hostname {
+            color: var(--accent);
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .log-expiry {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .log-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .badge-new {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-cached {
+            background: rgba(255, 204, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .log-ip {
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .log-delete {
+            opacity: 0;
+            color: var(--danger);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .log-item:hover .log-delete {
+            opacity: 1;
+        }
+
+        .log-delete:hover {
+            color: #ff4466;
+            transform: scale(1.2);
+        }
+
+        .date-separator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 10px 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .date-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--accent), transparent);
+            opacity: 0.3;
+        }
+
+        .date-separator.today {
+            color: var(--success);
+        }
+
+        .date-separator.today::after {
+            background: linear-gradient(to right, var(--success), transparent);
+        }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-state .icon {
+            font-size: 4rem;
+            opacity: 0.3;
+            margin-bottom: 15px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .pagination span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Day Tabs */
+        .day-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 5px 0 0 0;
+            overflow-x: auto;
+            overflow-y: visible;
+            margin-bottom: 20px;
+        }
+
+        .day-tab {
+            padding: 12px 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            min-width: 130px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .day-tab:hover {
+            background: var(--surface-hover);
+            border-color: rgba(0, 243, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 243, 255, 0.2);
+        }
+
+        .day-tab.active {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(0, 170, 255, 0.1));
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 4px 20px rgba(0, 243, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .day-tab.today {
+            border-color: rgba(0, 255, 136, 0.4);
+        }
+
+        .day-tab.today.active {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1));
+            border-color: var(--success);
+            color: var(--success);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .day-tab-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .day-tab-count {
+            display: block;
+            font-size: 0.75rem;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        /* Background Animations */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: orbFloat 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb-1 {
+            top: -200px;
+            left: -200px;
+        }
+
+        .glow-orb-2 {
+            bottom: -200px;
+            right: -200px;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% {
+                transform: scale(1) translate(0, 0);
+            }
+            50% {
+                transform: scale(1.1) translate(30px, 30px);
+            }
+        }
+
+        .scanline {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 4px);
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 100;
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background Layers -->
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="scanline"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <div class="header">
+                <h1><i class="icon">security</i> Certificate Logs</h1>
+                <button class="btn btn-danger" onclick="clearAllLogs()">
+                    <i class="icon">delete_forever</i> Clear All
+                </button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="icon">verified_user</i> SSL/TLS Certificates
+                    </div>
+                    <button class="btn" onclick="loadLogs()">
+                        <i class="icon">refresh</i> Refresh
+                    </button>
+                </div>
+                
+                <!-- Day Tabs -->
+                <div class="day-tabs" id="dayTabs">
+                    <div class="day-tab active" onclick="selectDay('all')">
+                        <span class="day-tab-label">All Days</span>
+                        <span class="day-tab-count" id="allCount">0 logs</span>
+                    </div>
+                </div>
+
+                <input type="text" id="logSearch" class="search-box" placeholder="Search by hostname..." oninput="onSearchInput()">
+                <div class="log-list" id="logList">
+                    <div class="empty-state">
+                        <div class="icon">hourglass_empty</div>
+                        <div>Loading certificate logs...</div>
+                    </div>
+                </div>
+                <div class="pagination">
+                    <button id="prevBtn" onclick="changePage(-1)">
+                        <i class="icon">chevron_left</i>
+                    </button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button id="nextBtn" onclick="changePage(1)">
+                        <i class="icon">chevron_right</i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div><!-- .dashboard-wrapper -->
+
+    <script src="/assets/sidebar.js"></script>
+    <script>
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const currentSessionId = sessionStorage.getItem('sessionId') || 'unknown';
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let searchTimeout = null;
+        let autoRefreshInterval = null;
+        let selectedDay = 'all';
+        let availableDays = [];
+        let allLogs = [];
+
+        async function fetchWithAudit(url, options = {}) {
+            options.headers = {
+                ...options.headers,
+                'x-user': currentUser.username,
+                'x-session-id': currentSessionId,
+                'user-agent': navigator.userAgent
+            };
+            return fetch(url, options);
+        }
+
+        async function loadDays() {
+            try {
+                // Fetch all logs to get available days
+                const res = await fetchWithAudit('/api/cert/logs?limit=10000');
+                const data = await res.json();
+                allLogs = data.logs;
+                
+                // Group logs by day
+                const dayMap = new Map();
+                const today = new Date().toLocaleDateString();
+                
+                data.logs.forEach(log => {
+                    const timestampStr = log.timestamp.includes('T') ? log.timestamp : log.timestamp.replace(' ', 'T') + 'Z';
+                    const timestamp = new Date(timestampStr);
+                    const date = timestamp.toLocaleDateString();
+                    
+                    if (!dayMap.has(date)) {
+                        dayMap.set(date, []);
+                    }
+                    dayMap.get(date).push(log);
+                });
+                
+                // Convert to array and sort by date (newest first)
+                availableDays = Array.from(dayMap.entries())
+                    .map(([date, logs]) => ({
+                        date,
+                        count: logs.length,
+                        logs
+                    }))
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                renderDayTabs();
+            } catch (error) {
+                console.error('Error loading days:', error);
+            }
+        }
+
+        function renderDayTabs() {
+            const tabsContainer = document.getElementById('dayTabs');
+            const today = new Date().toLocaleDateString();
+            
+            let html = `
+                <div class="day-tab ${selectedDay === 'all' ? 'active' : ''}" onclick="selectDay('all')">
+                    <span class="day-tab-label">All Days</span>
+                    <span class="day-tab-count">${allLogs.length} logs</span>
+                </div>
+            `;
+            
+            availableDays.forEach(day => {
+                const isToday = day.date === today;
+                const label = isToday ? 'Today' : day.date;
+                const todayClass = isToday ? 'today' : '';
+                const activeClass = selectedDay === day.date ? 'active' : '';
+                
+                html += `
+                    <div class="day-tab ${todayClass} ${activeClass}" onclick="selectDay('${day.date}')">
+                        <span class="day-tab-label">${label}</span>
+                        <span class="day-tab-count">${day.count} logs</span>
+                    </div>
+                `;
+            });
+            
+            tabsContainer.innerHTML = html;
+        }
+
+        function selectDay(day) {
+            selectedDay = day;
+            currentPage = 1;
+            renderDayTabs();
+            loadLogs();
+        }
+
+        function onSearchInput() {
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            searchTimeout = setTimeout(() => {
+                currentPage = 1;
+                loadLogs();
+            }, 200);
+        }
+
+        async function loadLogs() {
+            try {
+                const container = document.getElementById('logList');
+                
+                // Filter logs by selected day
+                let filteredLogs = allLogs;
+                if (selectedDay !== 'all') {
+                    filteredLogs = allLogs.filter(log => {
+                        const timestampStr = log.timestamp.includes('T') ? log.timestamp : log.timestamp.replace(' ', 'T') + 'Z';
+                        const timestamp = new Date(timestampStr);
+                        return timestamp.toLocaleDateString() === selectedDay;
+                    });
+                }
+
+                const searchValue = document.getElementById('logSearch').value.trim().toLowerCase();
+                if (searchValue) {
+                    filteredLogs = filteredLogs.filter(log =>
+                        (log.hostname || '').toLowerCase().includes(searchValue)
+                    );
+                }
+
+                // Update pagination based on filtered logs
+                const itemsPerPage = 50;
+                const totalItems = filteredLogs.length;
+                totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+                
+                // Paginate filtered logs
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+
+                document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById('prevBtn').disabled = currentPage === 1;
+                document.getElementById('nextBtn').disabled = currentPage === totalPages;
+
+                if (paginatedLogs.length === 0) {
+                    const message = selectedDay === 'all' 
+                        ? 'No certificate logs found' 
+                        : `No logs for ${selectedDay === new Date().toLocaleDateString() ? 'today' : selectedDay}`;
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">security</div>
+                            <div>${message}</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                let currentDate = '';
+                const today = new Date().toLocaleDateString();
+                
+                paginatedLogs.forEach(log => {
+                    // Parse timestamp (UTC format from SQLite)
+                    const timestampStr = log.timestamp.includes('T') ? log.timestamp : log.timestamp.replace(' ', 'T') + 'Z';
+                    const timestamp = new Date(timestampStr);
+                    const date = timestamp.toLocaleDateString();
+                    const time = timestamp.toLocaleTimeString();
+
+                    // Parse expiry date
+                    const expiryDate = new Date(log.validity_end);
+                    const daysUntilExpiry = Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+
+                    // Add date separator only in "all" mode
+                    if (selectedDay === 'all' && date !== currentDate) {
+                        const isToday = date === today;
+                        const dateLabel = isToday ? 'Today' : date;
+                        html += `
+                            <div class="date-separator ${isToday ? 'today' : ''}">
+                                <span>${dateLabel}</span>
+                            </div>
+                        `;
+                        currentDate = date;
+                    }
+
+                    const fromCache = log.from_cache === 1;
+                    const certClass = fromCache ? 'cached' : 'new-cert';
+                    const badgeClass = fromCache ? 'badge-cached' : 'badge-new';
+                    const badgeText = fromCache ? 'CACHED' : 'NEW';
+
+                    html += `
+                        <div class="log-item ${certClass}">
+                            <div class="log-time">${time}</div>
+                            <div class="log-hostname" title="${log.hostname}">${log.hostname}</div>
+                            <div class="log-expiry">${daysUntilExpiry} days left</div>
+                            <div class="log-badge ${badgeClass}">${badgeText}</div>
+                            <div class="log-ip">${log.client_ip || '-'}</div>
+                            <i class="icon log-delete" onclick="deleteLog(${log.id})">delete</i>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading logs:', error);
+            }
+        }
+
+        async function deleteLog(logId) {
+            const confirmed = await customDelete('Delete this certificate log entry?', 'Delete Log');
+            if (!confirmed) return;
+
+            try {
+                await fetchWithAudit('/api/cert/logs', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ logId })
+                });
+                await loadDays();
+                loadLogs();
+            } catch (error) {
+                console.error('Error deleting log:', error);
+                await customAlert('Failed to delete log. Please try again.', 'Error');
+            }
+        }
+
+        async function clearAllLogs() {
+            const confirmed = await customDelete(
+                'Clear ALL certificate logs? This action cannot be undone.',
+                'Clear All Logs'
+            );
+            if (!confirmed) return;
+
+            try {
+                await fetchWithAudit('/api/cert/logs', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                selectedDay = 'all';
+                currentPage = 1;
+                await loadDays();
+                loadLogs();
+            } catch (error) {
+                console.error('Error clearing logs:', error);
+                await customAlert('Failed to clear logs. Please try again.', 'Error');
+            }
+        }
+
+        function changePage(delta) {
+            const newPage = currentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                loadLogs();
+            }
+        }
+
+        // Auto-refresh every 2 seconds
+        autoRefreshInterval = setInterval(() => {
+            loadDays();
+            loadLogs();
+        }, 2000);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+
+        // Log page view
+        fetchWithAudit('/api/audit/page-view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: 'Certificate Logs' })
+        }).catch(err => console.error('Page view audit error:', err));
+
+        // Initialize
+        loadDays().then(() => loadLogs());
+    </script>
+
+    <script>
+        // Background animations
+        (function() {
+            const CONFIG = {
+                PARTICLE_COUNT: 50,
+                PARTICLE_REPEL_DISTANCE: 200,
+                CONNECTION_MAX_DISTANCE: 120,
+                PARTICLE_SPEED_MULTIPLIER: 0.5,
+                PARTICLE_SIZE_MIN: 1,
+                PARTICLE_SIZE_MAX: 3,
+                PARTICLE_OPACITY_MIN: 0.2,
+                PARTICLE_OPACITY_MAX: 0.5,
+                CONNECTION_OPACITY_BASE: 0.15
+            };
+
+            const canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            
+            let width, height;
+            let mouseX = 0, mouseY = 0;
+            let particles = [];
+            let animationFrameId = null;
+            let isTabVisible = !document.hidden;
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                    this.vy = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                    this.size = CONFIG.PARTICLE_SIZE_MIN + Math.random() * (CONFIG.PARTICLE_SIZE_MAX - CONFIG.PARTICLE_SIZE_MIN);
+                    this.opacity = CONFIG.PARTICLE_OPACITY_MIN + Math.random() * (CONFIG.PARTICLE_OPACITY_MAX - CONFIG.PARTICLE_OPACITY_MIN);
+                }
+
+                update() {
+                    const dx = mouseX - this.x;
+                    const dy = mouseY - this.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < CONFIG.PARTICLE_REPEL_DISTANCE) {
+                        const force = (CONFIG.PARTICLE_REPEL_DISTANCE - distance) / CONFIG.PARTICLE_REPEL_DISTANCE;
+                        this.vx -= (dx / distance) * force * 0.5;
+                        this.vy -= (dy / distance) * force * 0.5;
+                    }
+
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                    
+                    this.vx *= 0.99;
+                    this.vy *= 0.99;
+                    if (Math.abs(this.vx) < 0.1) this.vx += (Math.random() - 0.5) * 0.1;
+                    if (Math.abs(this.vy) < 0.1) this.vy += (Math.random() - 0.5) * 0.1;
+                    
+                    this.x = Math.max(0, Math.min(width, this.x));
+                    this.y = Math.max(0, Math.min(height, this.y));
+                }
+
+                draw() {
+                    ctx.fillStyle = `rgba(0, 243, 255, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function init() {
+                resizeCanvas();
+                particles = Array.from({ length: CONFIG.PARTICLE_COUNT }, () => new Particle());
+            }
+
+            function animate() {
+                if (!isTabVisible) {
+                    animationFrameId = requestAnimationFrame(animate);
+                    return;
+                }
+
+                ctx.clearRect(0, 0, width, height);
+
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < CONFIG.CONNECTION_MAX_DISTANCE) {
+                            const opacity = CONFIG.CONNECTION_OPACITY_BASE * (1 - distance / CONFIG.CONNECTION_MAX_DISTANCE);
+                            ctx.strokeStyle = `rgba(0, 243, 255, ${opacity})`;
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                isTabVisible = !document.hidden;
+            });
+
+            init();
+            animate();
+
+            window.addEventListener('beforeunload', () => {
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard • Chakhdi.local</title>
+    <script>
+        if (sessionStorage.getItem('dashboardAuth') !== 'true') {
+            window.location.href = '/login';
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/assets/icons.css">
+    <link rel="stylesheet" href="/assets/sidebar.css">
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='35' height='35' rx='6' fill='%2300f3ff'/%3E%3Crect x='55' y='10' width='35' height='35' rx='6' fill='%23ff0044'/%3E%3Crect x='10' y='55' width='35' height='35' rx='6' fill='%2300ff88'/%3E%3Crect x='55' y='55' width='35' height='35' rx='6' fill='%23fca130'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --bg: #030308;
+            --surface: #0a0a14;
+            --surface-hover: #121225;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-primary: #e0e0ff;
+            --text-secondary: #8888aa;
+            --accent-proxy: #ff0044;
+            --accent-dns: #00f3ff;
+            --accent: var(--accent-dns);
+            --accent-glow: rgba(0, 243, 255, 0.15);
+            --success: #00ff88;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            font-size: 16px;
+        }
+
+        /* Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+
+
+        /* Shared styles moved to sidebar.css */
+
+        /* Page Fade-in Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--surface);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-proxy), var(--accent-dns));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* Dashboard Overview Grid */
+        .dashboard-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .section-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 25px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: var(--surface-hover);
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .proxy-color {
+            background: rgba(255, 0, 68, 0.1);
+            color: var(--accent-proxy);
+        }
+
+        .dns-color {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--accent-dns);
+        }
+
+        .users-color {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .card-title-group h3 {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        .card-title-group p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-pill.active {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .status-pill.offline {
+            background: rgba(255, 0, 68, 0.1);
+            color: var(--accent-proxy);
+            border: 1px solid rgba(255, 0, 68, 0.2);
+        }
+
+        .card-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .mini-stat {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .mini-stat .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .mini-stat .label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .manage-btn {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .manage-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        /* Background Animations */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: orbFloat 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb-1 {
+            top: -200px;
+            left: -200px;
+        }
+
+        .glow-orb-2 {
+            bottom: -200px;
+            right: -200px;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            50% {
+                transform: scale(1.1) translate(30px, 30px);
+            }
+        }
+
+        .scanline {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--border) 2px, var(--border) 4px);
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 100;
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background Layers -->
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="scanline"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Dashboard Wrapper -->
+    <div class="dashboard-wrapper">
+        <div id="sidebar-container"></div>
+        <script src="/assets/sidebar.js"></script>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700;">Infrastructure Dashboard</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Real-time system health and controls</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar" id="avatarName">A</div>
+                    <span style="font-size: 0.9rem; font-weight: 500;" id="profileUsername">Admin</span>
+                </div>
+            </header>
+
+            <div class="dashboard-sections">
+                <!-- Proxy Server Section -->
+                <div class="section-card">
+                    <div class="card-header">
+                        <div class="card-info">
+                            <div class="card-icon-box proxy-color">
+                                <span class="icon">shield</span>
+                            </div>
+                            <div class="card-title-group">
+                                <h3>Proxy Engine</h3>
+                                <p>Traffic Filtering</p>
+                            </div>
+                        </div>
+                        <div class="status-pill active" id="proxyStatus">
+                            <span class="icon" style="font-size: 0.5rem;">circle</span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="mini-stat">
+                            <span class="value" id="proxyBlocked">0</span>
+                            <span class="label">Blocked</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="value" id="proxySpeed">0 ms</span>
+                            <span class="label">Lat. Avg</span>
+                        </div>
+                    </div>
+                    <a href="/proxy" class="manage-btn">
+                        <span>Manage Traffic</span>
+                        <span class="icon" style="font-size: 1rem;">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- DNS Server Section -->
+                <div class="section-card">
+                    <div class="card-header">
+                        <div class="card-info">
+                            <div class="card-icon-box dns-color">
+                                <span class="icon">dns</span>
+                            </div>
+                            <div class="card-title-group">
+                                <h3>DNS Resolver</h3>
+                                <p>Content Blocking</p>
+                            </div>
+                        </div>
+                        <div class="status-pill active" id="dnsStatus">
+                            <span class="icon" style="font-size: 0.5rem;">circle</span>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="mini-stat">
+                            <span class="value" id="dnsTotal">0</span>
+                            <span class="label">Total Q</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="value" id="dnsBlocked">0</span>
+                            <span class="label">Blocked</span>
+                        </div>
+                    </div>
+                    <a href="/dns" class="manage-btn">
+                        <span>DNS Settings</span>
+                        <span class="icon" style="font-size: 1rem;">arrow_forward</span>
+                    </a>
+                </div>
+
+                <!-- Administration Section -->
+                <div class="section-card" id="adminSection" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-info">
+                            <div class="card-icon-box users-color">
+                                <span class="icon">group</span>
+                            </div>
+                            <div class="card-title-group">
+                                <h3>User Management</h3>
+                                <p>Access Control</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem; color: var(--text-secondary); line-height: 1.5;">Manage administrative
+                        users, update credentials and set roles for the system.</p>
+                    <a href="/users" class="manage-btn">
+                        <span>System Settings</span>
+                        <span class="icon" style="font-size: 1rem;">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div><!-- .dashboard-wrapper -->
+
+    <script>
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        // UI Initialization
+        document.getElementById('profileUsername').textContent = currentUser.username || 'System';
+        document.getElementById('avatarName').textContent = (currentUser.username || 'A')[0].toUpperCase();
+
+        const currentSessionId = sessionStorage.getItem('sessionId') || 'unknown';
+
+        // RBAC: Show admin section only for admins
+        if (currentUser.role === 'admin') {
+            document.getElementById('adminSection').style.display = 'flex';
+        }
+
+        async function fetchWithAudit(url, options = {}) {
+            options.headers = {
+                ...options.headers,
+                'x-user': currentUser.username,
+                'x-session-id': currentSessionId,
+                'user-agent': navigator.userAgent
+            };
+            return fetch(url, options);
+        }
+
+        async function updateStatus() {
+            try {
+                // Fetch Proxy Stats
+                const proxyRes = await fetchWithAudit('/api/stats');
+                const proxyData = await proxyRes.json();
+                document.getElementById('proxyBlocked').textContent = proxyData.blockedCount || 0;
+
+                // Fetch DNS Stats
+                const dnsRes = await fetchWithAudit('/api/dns/stats');
+                const dnsData = await dnsRes.json();
+
+                const dnsBadge = document.getElementById('dnsStatus');
+                document.getElementById('dnsTotal').textContent = dnsData.totalQueries || 0;
+                document.getElementById('dnsBlocked').textContent = dnsData.blockedQueries || 0;
+
+                if (dnsData.enabled) {
+                    dnsBadge.className = 'status-pill active';
+                    dnsBadge.innerHTML = '<span class="icon" style="font-size: 0.5rem;">circle</span><span>Active</span>';
+                } else {
+                    dnsBadge.className = 'status-pill offline';
+                    dnsBadge.innerHTML = '<span class="icon" style="font-size: 0.5rem;">circle</span><span>Offline</span>';
+                }
+
+            } catch (e) { console.error('Status update failed:', e); }
+        }
+
+        // Report page view
+        fetchWithAudit('/api/audit/page-view', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ page: 'Main Dashboard' })
+        });
+
+        setInterval(updateStatus, 5000);
+        updateStatus();
+    </script>
+
+    <script>
+        // Background animations
+        (function () {
+            const CONFIG = {
+                PARTICLE_COUNT: 50,
+                PARTICLE_REPEL_DISTANCE: 200,
+                CONNECTION_MAX_DISTANCE: 120,
+                PARTICLE_SPEED_MULTIPLIER: 0.5,
+                PARTICLE_SIZE_MIN: 1,
+                PARTICLE_SIZE_MAX: 3,
+                PARTICLE_OPACITY_MIN: 0.2,
+                PARTICLE_OPACITY_MAX: 0.5,
+                CONNECTION_OPACITY_BASE: 0.15
+            };
+
+            // Particle System
+            const canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            let width, height;
+            let mouseX = 0, mouseY = 0;
+            let particles = [];
+            let animationFrameId = null;
+            let isTabVisible = !document.hidden;
+
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                isTabVisible = !document.hidden;
+                if (isTabVisible && !animationFrameId) {
+                    animate();
+                }
+            });
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * (CONFIG.PARTICLE_SIZE_MAX - CONFIG.PARTICLE_SIZE_MIN) + CONFIG.PARTICLE_SIZE_MIN;
+                    this.speedX = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                    this.speedY = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                    this.opacity = Math.random() * (CONFIG.PARTICLE_OPACITY_MAX - CONFIG.PARTICLE_OPACITY_MIN) + CONFIG.PARTICLE_OPACITY_MIN;
+                }
+
+                update() {
+                    const dx = mouseX - this.x;
+                    const dy = mouseY - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < CONFIG.PARTICLE_REPEL_DISTANCE) {
+                        const force = (CONFIG.PARTICLE_REPEL_DISTANCE - dist) / CONFIG.PARTICLE_REPEL_DISTANCE;
+                        this.x -= (dx / dist) * force * 3;
+                        this.y -= (dy / dist) * force * 3;
+                    }
+
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x < 0) this.x = width;
+                    if (this.x > width) this.x = 0;
+                    if (this.y < 0) this.y = height;
+                    if (this.y > height) this.y = 0;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 243, 255, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < CONFIG.CONNECTION_MAX_DISTANCE) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(0, 243, 255, ${CONFIG.CONNECTION_OPACITY_BASE * (1 - dist / CONFIG.CONNECTION_MAX_DISTANCE)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                if (!isTabVisible) {
+                    animationFrameId = null;
+                    return;
+                }
+
+                ctx.clearRect(0, 0, width, height);
+
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                drawConnections();
+                animationFrameId = requestAnimationFrame(animate);
+            }
+
+            animate();
+        })();
+    </script>
+    <script src="/assets/modal.js"></script>
+</body>
+
+</html>

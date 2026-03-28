@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Error page - Access restricted or connection failed" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:;" />
+    <title id="pageTitle">Connection Error</title>
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M 50 10 L 90 80 L 10 80 Z' fill='%23ff0044' stroke='%23ffffff' stroke-width='3' stroke-linejoin='round'/%3E%3Cline x1='50' y1='35' x2='50' y2='55' stroke='%23ffffff' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='68' r='4' fill='%23ffffff'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" crossorigin="anonymous">
+    <style>
+        :root {
+            --bg: #050510;
+            --surface: #10101a;
+            --text-primary: #e0e0ff;
+            --text-secondary: #9999bb;
+            --accent: #00f3ff;
+            --accent-glow: rgba(0, 243, 255, 0.3);
+            --warning: #ffcc00;
+            --danger: #ff0044;
+            --grid-color: rgba(255, 0, 68, 0.05);
+            --grid-alt: rgba(0, 243, 255, 0.04);
+            --orb-color: rgba(255, 0, 68, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Smooth color transitions only on elements that change */
+        :root,
+        .time-display,
+        .status,
+        .status-dot,
+        .error-title,
+        footer strong,
+        .error-value,
+        #cyclingMessage,
+        h1 {
+            transition: color 3s cubic-bezier(0.4, 0, 0.2, 1), border-color 3s cubic-bezier(0.4, 0, 0.2, 1), background-color 3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100vh;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Grid with Morphing Shapes */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image:
+                linear-gradient(rgba(255, 0, 68, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 68, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: morphShapes 60s ease-in-out infinite;
+        }
+
+        @keyframes morphShapes {
+            0%, 100% {
+                /* Square Grid */
+                background-image:
+                    linear-gradient(var(--grid-color) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+                background-size: 60px 60px;
+                opacity: 1;
+            }
+            
+            14% {
+                /* Square Grid - slightly larger */
+                background-image:
+                    linear-gradient(var(--grid-color) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+                background-size: 80px 80px;
+                opacity: 0.9;
+            }
+            
+            28% {
+                /* Dots Pattern */
+                background-image:
+                    radial-gradient(circle, var(--grid-color) 2px, transparent 2px),
+                    radial-gradient(circle, var(--grid-alt) 1.5px, transparent 1.5px);
+                background-size: 50px 50px, 25px 25px;
+                background-position: 0 0, 25px 25px;
+                opacity: 0.85;
+            }
+            
+            42% {
+                /* Fine Square Grid */
+                background-image:
+                    linear-gradient(var(--grid-color) 0.5px, transparent 0.5px),
+                    linear-gradient(90deg, var(--grid-color) 0.5px, transparent 0.5px);
+                background-size: 40px 40px;
+                opacity: 0.9;
+            }
+            
+            56% {
+                /* Diagonal Subtle */
+                background-image:
+                    repeating-linear-gradient(45deg, transparent, transparent 60px, var(--grid-color) 60px, var(--grid-color) 61px),
+                    repeating-linear-gradient(-45deg, transparent, transparent 60px, var(--grid-alt) 60px, var(--grid-alt) 61px);
+                background-size: 100% 100%;
+                opacity: 0.8;
+            }
+            
+            70% {
+                /* Mixed Dots and Lines */
+                background-image:
+                    radial-gradient(circle, var(--grid-color) 1.5px, transparent 1.5px),
+                    linear-gradient(90deg, var(--grid-alt) 1px, transparent 1px);
+                background-size: 60px 60px, 120px 60px;
+                opacity: 0.85;
+            }
+            
+            84% {
+                /* Large Square Grid */
+                background-image:
+                    linear-gradient(var(--grid-color) 1.5px, transparent 1.5px),
+                    linear-gradient(90deg, var(--grid-color) 1.5px, transparent 1.5px);
+                background-size: 100px 100px;
+                opacity: 0.9;
+            }
+        }
+
+        /* Canvas for interactive particles */
+        #particleCanvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Radial Glow */
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--orb-color) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: orbFloat 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .glow-orb-1 {
+            top: -200px;
+            left: -200px;
+        }
+
+        .glow-orb-2 {
+            bottom: -200px;
+            right: -200px;
+            animation-delay: -4s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            50% {
+                transform: scale(1.1) translate(30px, 30px);
+            }
+        }
+
+        /* Scanline */
+        .scanline {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, var(--grid-color) 2px, var(--grid-color) 4px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .time-display {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: rgba(26, 26, 26, 0.85);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            z-index: 50;
+        }
+
+        /* Page Fade-in Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main Container */
+        .container {
+            background: rgba(26, 26, 26, 0.9);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            padding: 2rem 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 0, 68, 0.3);
+            box-shadow: 0 0 80px var(--accent-glow), 0 25px 50px rgba(0, 0, 0, 0.5);
+            max-width: 900px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* Icon */
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            animation: iconPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(255, 0, 68, 0.6));
+        }
+
+        @keyframes iconPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(255, 0, 68, 0.5));
+            }
+
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 40px rgba(255, 0, 68, 0.8));
+            }
+        }
+
+        /* Title */
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            animation: fadeIn 0.6s ease 0.2s both;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.6s ease 0.3s both;
+        }
+
+        /* Status Badge */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 0, 68, 0.12);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 0, 68, 0.4);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+            animation: fadeIn 0.6s ease 0.4s both, statusGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes statusGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 0, 68, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 40px rgba(255, 0, 68, 0.4);
+            }
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--accent);
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes dotPulse {
+
+            0%,
+            100% {
+                opacity: 0.7;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Message */
+        .message {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: 0.85rem;
+            animation: fadeIn 0.6s ease 0.5s both;
+        }
+
+        /* Error Details Box */
+        .error-box {
+            margin: 1.2rem 0;
+            background: rgba(255, 0, 68, 0.06);
+            border: 1px solid rgba(255, 0, 68, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease 0.6s both;
+        }
+
+        .error-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(255, 0, 68, 0.1);
+            border-bottom: 1px solid rgba(255, 0, 68, 0.2);
+        }
+
+        .error-icon {
+            font-size: 1.2rem;
+        }
+
+        .error-title {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .error-content {
+            padding: 12px 16px;
+        }
+
+        .error-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(255, 0, 68, 0.15);
+        }
+
+        .error-row:last-child {
+            border-bottom: none;
+        }
+
+        .error-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .error-value {
+            color: #ff6b9d;
+            font-size: 0.85rem;
+            text-align: right;
+            word-break: break-word;
+            max-width: 60%;
+        }
+
+        .error-footer {
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            font-size: 0.8rem;
+            color: #666;
+            z-index: 50;
+            background: rgba(10, 10, 20, 0.8);
+            padding: 8px 16px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        footer strong {
+            color: var(--accent);
+        }
+
+        /* Accessibility: Respect reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            ::before,
+            ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+                max-width: 95%;
+                margin-bottom: 120px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .icon {
+                font-size: 4rem;
+            }
+
+            .time-display {
+                font-size: 0.75rem;
+                padding: 8px 12px;
+            }
+
+            footer {
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                text-align: center;
+                font-size: 0.7rem;
+            }
+
+            .error-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+
+            .error-value {
+                max-width: 100%;
+                text-align: left;
+            }
+
+            .error-label {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="scanline"></div>
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="time-display" id="timeDisplay" role="timer" aria-label="Current time" aria-live="off">00:00:00</div>
+
+    <div class="container" role="main" aria-live="polite">
+        <div class="icon" id="errorIcon" role="img" aria-label="Error icon">🛑</div>
+        <h1 id="errorTitle">Access Denied</h1>
+        <p class="tagline" id="errorTagline">This path is protected by Chakhdi.local</p>
+
+        <div class="status" id="errorStatus">
+            <div class="status-dot"></div>
+            <span id="statusText">BLOCKED • RESTRICTED ZONE</span>
+        </div>
+
+        <p class="message" id="errorMessage">
+            The requested domain has been restricted for your safety, productivity, or because it simply doesn't deserve
+            your time.
+        </p>
+
+        <div class="error-box">
+            <div class="error-header">
+                <span class="error-icon" id="errorIconSmall">⚠️</span>
+                <span class="error-title">Error Details</span>
+            </div>
+            <div class="error-content">
+                <div class="error-row">
+                    <span class="error-label">Error Code:</span>
+                    <span class="error-value" id="errorCode">403</span>
+                </div>
+                <div class="error-row">
+                    <span class="error-label">Domain:</span>
+                    <span class="error-value" id="errorDomain">unknown</span>
+                </div>
+                <div class="error-row">
+                    <span class="error-label">Reason:</span>
+                    <span class="error-value" id="errorReason">Domain blocked by DNS filter</span>
+                </div>
+                <div class="error-row">
+                    <span class="error-label">Details:</span>
+                    <span class="error-value" id="errorDetails">Access restricted by administrator</span>
+                </div>
+                <div class="error-row" id="errorCategoryRow" style="display: none;">
+                    <span class="error-label">Category:</span>
+                    <span class="error-value" id="errorCategory">Policy</span>
+                </div>
+                <div class="error-row" id="errorRuleRow" style="display: none;">
+                    <span class="error-label">Rule:</span>
+                    <span class="error-value" id="errorRule">Schedule</span>
+                </div>
+                <div class="error-row" id="errorEvidenceRow" style="display: none;">
+                    <span class="error-label">Evidence:</span>
+                    <span class="error-value" id="errorEvidence">Outside allowed schedule</span>
+                </div>
+                <div class="error-row">
+                    <span class="error-label">Your IP:</span>
+                    <span class="error-value" id="clientIp">Loading...</span>
+                </div>
+                <div class="error-row">
+                    <span class="error-label">Your MAC:</span>
+                    <span class="error-value" id="clientMac">Loading...</span>
+                </div>
+            </div>
+            <div class="error-footer" id="errorFooter">
+                Jay Saminarayan – sometimes the block is a blessing in disguise
+            </div>
+        </div>
+
+        <p id="cyclingMessage" class="message" style="margin-top: 1rem; font-size: 0.75rem; line-height: 1.5; transition: opacity 0.6s ease-in-out; min-height: 3.5rem; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;">
+        </p>
+    </div>
+    
+    <footer role="contentinfo">
+        <strong>Chakhdi.local</strong> © <span id="currentYear">2026</span> • Jay Saminarayan
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            // Fetch and display client IP and MAC
+            async function loadClientInfo() {
+                try {
+                    const res = await fetch('/api/client-info');
+                    const data = await res.json();
+                    if (data.success) {
+                        document.getElementById('clientIp').textContent = data.ip || 'unknown';
+                        document.getElementById('clientMac').textContent = data.mac || 'unknown';
+                    }
+                } catch (err) {
+                    console.error('Failed to load client info:', err);
+                    document.getElementById('clientIp').textContent = 'Error';
+                    document.getElementById('clientMac').textContent = 'Error';
+                }
+            }
+            
+            // Load client info on page load
+            loadClientInfo();
+            
+            // Configuration constants
+            const CONFIG = {
+                PARTICLE_COUNT: 50,
+                PARTICLE_REPEL_DISTANCE: 200,
+                CONNECTION_MAX_DISTANCE: 120,
+                PARTICLE_SPEED_MULTIPLIER: 0.5,
+                PARTICLE_SIZE_MIN: 1,
+                PARTICLE_SIZE_MAX: 3,
+                PARTICLE_OPACITY_MIN: 0.2,
+                PARTICLE_OPACITY_MAX: 0.5,
+                CONNECTION_OPACITY_BASE: 0.15,
+                QUOTE_CYCLE_INTERVAL: 5000,
+                COLOR_CYCLE_INTERVAL: 5000,
+                TIME_UPDATE_INTERVAL: 1000,
+                ANIMATION_INTERVAL: 16 // ~60fps
+            };
+
+            // Set current year
+            const yearEl = document.getElementById('currentYear');
+            if (yearEl) {
+                yearEl.textContent = new Date().getFullYear();
+            }
+
+            // Parse error data from special meta tag (injected by server)
+            const errorMeta = document.querySelector('meta[name="error-data"]');
+            if (errorMeta) {
+                try {
+                    const errorData = JSON.parse(decodeURIComponent(errorMeta.content));
+                    // Validate error data structure
+                    if (errorData && typeof errorData === 'object') {
+                        updateErrorPage(errorData);
+                    }
+                } catch (e) {
+                    console.error('Failed to parse error data:', e);
+                }
+            }
+
+        function updateErrorPage(data) {
+            const code = data.code || 500;
+            const type = data.type || 'BLOCKED';
+            const domain = data.domain || window.location.hostname || 'unknown';
+            const reason = data.reason || 'Connection failed';
+            const details = data.details || 'Unable to establish connection';
+            const category = data.category || '';
+            const rule = data.rule || '';
+            const evidence = data.evidence || '';
+
+            // Update based on error type
+            const icons = {
+                'AUTH_REQUIRED': '🔒',
+                'BLOCKED': '🛑',
+                '404': '🔍',
+                '403': '🚫',
+                '500': '⚠️',
+                '502': '🔌',
+                '503': '⏱️',
+                '504': '⏳',
+                'TIMEOUT': '⏱️',
+                'CONNECTION_REFUSED': '🔌',
+                'DNS_ERROR': '🌐'
+            };
+
+            const titles = {
+                'AUTH_REQUIRED': 'Login Required',
+                'BLOCKED': 'Access Blocked',
+                '404': 'Not Found',
+                '403': 'Forbidden',
+                '500': 'Server Error',
+                '502': 'Bad Gateway',
+                '503': 'Service Unavailable',
+                '504': 'Gateway Timeout',
+                'TIMEOUT': 'Connection Timeout',
+                'CONNECTION_REFUSED': 'Connection Refused',
+                'DNS_ERROR': 'DNS Resolution Failed'
+            };
+
+            const messages = {
+                'AUTH_REQUIRED': 'Please log in to access the internet through this gateway. Your session keeps access active while the login tab remains open.',
+                'BLOCKED': 'The requested domain has been restricted for your safety, productivity, or by administrator policy.',
+                '404': 'The requested resource could not be found on the target server. The URL may be incorrect or the page no longer exists.',
+                '403': 'You don\'t have permission to access this resource. The server understood the request but refuses to authorize it.',
+                '500': 'The target server encountered an unexpected condition that prevented it from fulfilling the request.',
+                '502': 'The proxy received an invalid response from the upstream server. The target server may be down or unreachable.',
+                '503': 'The target server is temporarily unable to handle the request. This is usually due to maintenance or overload.',
+                '504': 'The proxy did not receive a timely response from the upstream server. The target server is taking too long to respond.',
+                'TIMEOUT': 'The connection to the target server timed out. The server may be overloaded or your network connection is slow.',
+                'CONNECTION_REFUSED': 'The target server refused to establish a connection. The server may be down or blocking connections.',
+                'DNS_ERROR': 'Unable to resolve the domain name. The DNS server could not find the IP address for this domain.'
+            };
+
+            const footers = {
+                'AUTH_REQUIRED': 'Login required – open the gateway dashboard to continue',
+                'BLOCKED': 'Jay Saminarayan – sometimes the block is a blessing in disguise',
+                '404': 'Double-check the URL or contact the website administrator',
+                '403': 'Contact the administrator if you believe this is an error',
+                '500': 'Please try again later or contact the website administrator',
+                '502': 'The upstream server is experiencing issues – try again shortly',
+                '503': 'Service temporarily unavailable – check back soon',
+                '504': 'Request timeout – the server is taking too long to respond',
+                'TIMEOUT': 'Connection timeout – check your network or try again',
+                'CONNECTION_REFUSED': 'Server refused connection – may be offline or firewalled',
+                'DNS_ERROR': 'DNS lookup failed – check domain name or DNS settings'
+            };
+
+            // Update page title and UI
+            document.getElementById('pageTitle').textContent = titles[type] || 'Error';
+            document.getElementById('errorIcon').textContent = icons[type] || '❌';
+            document.getElementById('errorTitle').textContent = titles[type] || 'Error';
+            document.getElementById('errorTagline').textContent = `Error Code: ${code}`;
+            document.getElementById('statusText').textContent = `${code} • ${type}`;
+            document.getElementById('errorMessage').textContent = messages[type] || 'An error occurred while processing your request.';
+            document.getElementById('errorCode').textContent = code;
+            document.getElementById('errorDomain').textContent = domain;
+            document.getElementById('errorReason').textContent = reason;
+            document.getElementById('errorDetails').textContent = details;
+            document.getElementById('errorFooter').textContent = footers[type] || 'Please try again later';
+            document.getElementById('errorIconSmall').textContent = icons[type] || '❌';
+
+            const categoryRow = document.getElementById('errorCategoryRow');
+            const ruleRow = document.getElementById('errorRuleRow');
+            const evidenceRow = document.getElementById('errorEvidenceRow');
+
+            if (category) {
+                document.getElementById('errorCategory').textContent = category;
+                categoryRow.style.display = 'flex';
+            } else {
+                categoryRow.style.display = 'none';
+            }
+
+            if (rule) {
+                document.getElementById('errorRule').textContent = rule;
+                ruleRow.style.display = 'flex';
+            } else {
+                ruleRow.style.display = 'none';
+            }
+
+            if (evidence) {
+                document.getElementById('errorEvidence').textContent = evidence;
+                evidenceRow.style.display = 'flex';
+            } else {
+                evidenceRow.style.display = 'none';
+            }
+
+            // Update status style based on error type
+            const statusEl = document.getElementById('errorStatus');
+            if (type === 'BLOCKED' || type === '403' || type === 'AUTH_REQUIRED') {
+                statusEl.style.background = 'rgba(255, 0, 68, 0.12)';
+                statusEl.style.borderColor = 'rgba(255, 0, 68, 0.4)';
+            } else if (type === '404') {
+                statusEl.style.background = 'rgba(255, 204, 0, 0.12)';
+                statusEl.style.borderColor = 'rgba(255, 204, 0, 0.4)';
+            } else {
+                statusEl.style.background = 'rgba(255, 100, 0, 0.12)';
+                statusEl.style.borderColor = 'rgba(255, 100, 0, 0.4)';
+            }
+        }
+
+        // Cycling Technical Quotes
+        const technicalQuotes = [
+            "The resource you sought has been abstracted from the current namespace. Please verify the integrity of your request path.",
+            "The URL has failed to resolve within the current domain. Consider validating the end-point configuration or re-evaluating the routing logic.",
+            "The requested entity could not be located within the allocated address space. Please reassess your query for potential syntactic discrepancies.",
+            "Resource not found: The page is beyond the scope of the request handler. Ensure your request is properly encoded and conforms to expected protocols.",
+            "The server encountered an uncaught exception in routing the request. Please verify that the endpoint exists within the current route map.",
+            "The resource is indeterminate due to an unresolved reference in the request URI. Perform a detailed analysis of your input parameters.",
+            "The requested page is currently unreachable due to a broken link or unresolvable address pointer. A diagnostic pass of your routing table may be necessary.",
+            "The requested content could not be located within the virtual memory space. A re-evaluation of your URL or request headers may yield a solution.",
+            "The requested resource is in an undefined state within the server's logical structure. Kindly reassess your network configuration or try an alternate route.",
+            "The path is obscured due to a misalignment in the reference model. A realignment of the access points may restore the desired functionality."
+        ];
+
+        let currentQuoteIndex = 0;
+        
+        function cycleQuotes() {
+            const messageEl = document.getElementById('cyclingMessage');
+            if (!messageEl) return;
+            
+            // Fade out
+            messageEl.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Update text - FIXED: Use textContent to prevent XSS
+                const em = document.createElement('em');
+                em.style.color = 'var(--accent)';
+                em.style.fontStyle = 'italic';
+                em.style.lineHeight = '1.6';
+                em.textContent = technicalQuotes[currentQuoteIndex];
+                messageEl.innerHTML = '';
+                messageEl.appendChild(em);
+                
+                // Fade in
+                messageEl.style.opacity = '1';
+                
+                // Move to next quote
+                currentQuoteIndex = (currentQuoteIndex + 1) % technicalQuotes.length;
+            }, 600);
+        }
+
+        // Dynamic Color Scheme Cycling
+        const colorSchemes = [
+            {
+                name: 'Cyan/Red',
+                bg: '#050510',
+                accent: '#00f3ff',
+                accentGlow: 'rgba(0, 243, 255, 0.3)',
+                danger: '#ff0044',
+                gridColor: 'rgba(255, 0, 68, 0.05)',
+                gridAlt: 'rgba(0, 243, 255, 0.04)',
+                orbColor: 'rgba(255, 0, 68, 0.15)'
+            },
+            {
+                name: 'Purple/Pink',
+                bg: '#0f0514',
+                accent: '#a855f7',
+                accentGlow: 'rgba(168, 85, 247, 0.3)',
+                danger: '#ec4899',
+                gridColor: 'rgba(236, 72, 153, 0.05)',
+                gridAlt: 'rgba(168, 85, 247, 0.04)',
+                orbColor: 'rgba(236, 72, 153, 0.15)'
+            },
+            {
+                name: 'Green/Lime',
+                bg: '#051209',
+                accent: '#10b981',
+                accentGlow: 'rgba(16, 185, 129, 0.3)',
+                danger: '#84cc16',
+                gridColor: 'rgba(132, 204, 22, 0.05)',
+                gridAlt: 'rgba(16, 185, 129, 0.04)',
+                orbColor: 'rgba(132, 204, 22, 0.15)'
+            },
+            {
+                name: 'Blue/Indigo',
+                bg: '#050a14',
+                accent: '#3b82f6',
+                accentGlow: 'rgba(59, 130, 246, 0.3)',
+                danger: '#6366f1',
+                gridColor: 'rgba(99, 102, 241, 0.05)',
+                gridAlt: 'rgba(59, 130, 246, 0.04)',
+                orbColor: 'rgba(99, 102, 241, 0.15)'
+            },
+            {
+                name: 'Orange/Amber',
+                bg: '#140a05',
+                accent: '#f97316',
+                accentGlow: 'rgba(249, 115, 22, 0.3)',
+                danger: '#fbbf24',
+                gridColor: 'rgba(251, 191, 36, 0.05)',
+                gridAlt: 'rgba(249, 115, 22, 0.04)',
+                orbColor: 'rgba(251, 191, 36, 0.15)'
+            },
+            {
+                name: 'Teal/Emerald',
+                bg: '#05120f',
+                accent: '#14b8a6',
+                accentGlow: 'rgba(20, 184, 166, 0.3)',
+                danger: '#10b981',
+                gridColor: 'rgba(16, 185, 129, 0.05)',
+                gridAlt: 'rgba(20, 184, 166, 0.04)',
+                orbColor: 'rgba(16, 185, 129, 0.15)'
+            },
+            {
+                name: 'Magenta/Rose',
+                bg: '#140510',
+                accent: '#d946ef',
+                accentGlow: 'rgba(217, 70, 239, 0.3)',
+                danger: '#f43f5e',
+                gridColor: 'rgba(244, 63, 94, 0.05)',
+                gridAlt: 'rgba(217, 70, 239, 0.04)',
+                orbColor: 'rgba(244, 63, 94, 0.15)'
+            },
+            {
+                name: 'Sky/Blue',
+                bg: '#050f14',
+                accent: '#0ea5e9',
+                accentGlow: 'rgba(14, 165, 233, 0.3)',
+                danger: '#06b6d4',
+                gridColor: 'rgba(6, 182, 212, 0.05)',
+                gridAlt: 'rgba(14, 165, 233, 0.04)',
+                orbColor: 'rgba(6, 182, 212, 0.15)'
+            }
+        ];
+
+        let currentSchemeIndex = 0;
+
+        function changeColorScheme() {
+            const scheme = colorSchemes[currentSchemeIndex];
+            const root = document.documentElement;
+            
+            // Smoothly transition all colors including background with CSS
+            root.style.setProperty('--bg', scheme.bg);
+            root.style.setProperty('--accent', scheme.accent);
+            root.style.setProperty('--accent-glow', scheme.accentGlow);
+            root.style.setProperty('--danger', scheme.danger);
+            root.style.setProperty('--grid-color', scheme.gridColor);
+            root.style.setProperty('--grid-alt', scheme.gridAlt);
+            root.style.setProperty('--orb-color', scheme.orbColor);
+            
+            currentSchemeIndex = (currentSchemeIndex + 1) % colorSchemes.length;
+        }
+
+        // Unified animation loop for better performance
+        let lastQuoteTime = 0;
+        let lastColorTime = 0;
+        let lastTimeUpdate = 0;
+        let animationStartTime = Date.now();
+        
+        function unifiedLoop() {
+            const now = Date.now();
+            const elapsed = now - animationStartTime;
+            
+            // Update time display every second
+            if (now - lastTimeUpdate >= CONFIG.TIME_UPDATE_INTERVAL) {
+                updateTime();
+                lastTimeUpdate = now;
+            }
+            
+            // Cycle quotes every 5 seconds
+            if (elapsed - lastQuoteTime >= CONFIG.QUOTE_CYCLE_INTERVAL) {
+                cycleQuotes();
+                lastQuoteTime = elapsed;
+            }
+            
+            // Change color scheme every 5 seconds
+            if (elapsed - lastColorTime >= CONFIG.COLOR_CYCLE_INTERVAL) {
+                changeColorScheme();
+                lastColorTime = elapsed;
+            }
+        }
+        
+        // Start unified animation loop
+        cycleQuotes(); // Show first quote immediately
+        setInterval(unifiedLoop, CONFIG.ANIMATION_INTERVAL);
+        
+        // Time Display
+        const timeDisplay = document.getElementById('timeDisplay');
+        function updateTime() {
+            if (!timeDisplay) return;
+            const now = new Date();
+            timeDisplay.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        updateTime();
+
+        // Interactive Particle System
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) {
+            console.warn('Particle canvas not found');
+            return;
+        }
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            console.warn('Canvas 2D context not supported');
+            return;
+        }
+        
+        let width, height;
+        let mouseX = 0, mouseY = 0;
+        let particles = [];
+        let animationFrameId = null;
+        let isTabVisible = !document.hidden;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Track mouse and touch
+        function updatePosition(x, y) {
+            mouseX = x;
+            mouseY = y;
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            updatePosition(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                updatePosition(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+        
+        // Pause animation when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            isTabVisible = !document.hidden;
+            if (isTabVisible && !animationFrameId) {
+                animate();
+            }
+        });
+
+        // Particle class
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * (CONFIG.PARTICLE_SIZE_MAX - CONFIG.PARTICLE_SIZE_MIN) + CONFIG.PARTICLE_SIZE_MIN;
+                this.speedX = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                this.speedY = (Math.random() - 0.5) * CONFIG.PARTICLE_SPEED_MULTIPLIER;
+                this.opacity = Math.random() * (CONFIG.PARTICLE_OPACITY_MAX - CONFIG.PARTICLE_OPACITY_MIN) + CONFIG.PARTICLE_OPACITY_MIN;
+            }
+
+            update() {
+                // Move towards mouse with easing
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < CONFIG.PARTICLE_REPEL_DISTANCE) {
+                    // Repel from mouse
+                    const force = (CONFIG.PARTICLE_REPEL_DISTANCE - dist) / CONFIG.PARTICLE_REPEL_DISTANCE;
+                    this.x -= (dx / dist) * force * 3;
+                    this.y -= (dy / dist) * force * 3;
+                }
+
+                // Natural movement
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Wrap around
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+
+            draw(dangerColor) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                // Use current theme color
+                const rgb = dangerColor.match(/\d+/g);
+                if (rgb && rgb.length >= 3) {
+                    ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${this.opacity})`;
+                } else {
+                    ctx.fillStyle = `rgba(255, 0, 68, ${this.opacity})`;
+                }
+                ctx.fill();
+            }
+        }
+
+        // Create particles (reduced count for better performance)
+        for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+            particles.push(new Particle());
+        }
+
+        // Draw connections (optimized)
+        function drawConnections(dangerColor) {
+            const rgb = dangerColor.match(/\d+/g);
+            const baseColor = (rgb && rgb.length >= 3) ? `${rgb[0]}, ${rgb[1]}, ${rgb[2]}` : '255, 0, 68';
+            
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < CONFIG.CONNECTION_MAX_DISTANCE) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(${baseColor}, ${CONFIG.CONNECTION_OPACITY_BASE * (1 - dist / CONFIG.CONNECTION_MAX_DISTANCE)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Animation loop with visibility check
+        function animate() {
+            if (!isTabVisible) {
+                animationFrameId = null;
+                return;
+            }
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Get current theme color
+            const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
+
+            particles.forEach(p => {
+                p.update();
+                p.draw(dangerColor);
+            });
+
+            drawConnections(dangerColor);
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        animate();
+        
+        })(); // End IIFE
+    </script>
+</body>
+
+</html>
