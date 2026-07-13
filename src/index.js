@@ -1364,47 +1364,52 @@ async function handleApiRoutes(req, res, pathName) {
 }
 
 function serveDashboard(req, res, pathName) {
-    // Add security headers to all dashboard responses
     addSecurityHeaders(res);
 
-    // RBAC: Restrict specific pages to admins
-    const adminPages = ['/users', '/logs-history', '/self-audit'];
-    const session = getSessionFromRequest(req);
-
-    if (adminPages.includes(pathName)) {
-        if (!session || session.role !== 'admin') {
-            // Redirect to dashboard or login
-            res.writeHead(302, { 'Location': session ? '/dashboard' : '/login' });
-            res.end();
-            return;
-        }
-    }
-
-    let filePath = path.join(PATHS.PUBLIC,
-        pathName === '/' || pathName === '/dashboard' ? 'index.html' :
-            pathName === '/proxy' ? 'proxy.html' :
-                pathName === '/login' ? 'login.html' :
-                    pathName === '/users' ? 'users.html' :
-                        pathName === '/logs-history' ? 'logs-history.html' :
-                            pathName === '/audit-history' ? 'audit-history.html' :
-                                pathName === '/cert-logs' ? 'cert-logs.html' :
-                                    pathName === '/self-audit' ? 'self-audit.html' :
-                                    pathName === '/blocklist' ? 'blocklist.html' :
-                                        pathName === '/dns' ? 'dns.html' : pathName);
-
-    fs.access(filePath, fs.constants.F_OK, (err) => {
-        if (err) filePath = path.join(PATHS.PUBLIC, 'index.html');
-        const ext = path.extname(filePath).toLowerCase();
-        const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json' };
-        fs.readFile(filePath, (e, d) => {
-            if (e) {
+    const ext = path.extname(pathName).toLowerCase();
+    
+    // Serve static files (assets, stylesheets, javascript bundles, images)
+    if (ext) {
+        let filePath = path.join(PATHS.PUBLIC, pathName);
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('Not Found');
                 return;
             }
-            res.writeHead(200, { 'Content-Type': types[ext] || 'text/plain' });
-            res.end(d);
+            const types = { 
+                '.html': 'text/html', 
+                '.css': 'text/css', 
+                '.js': 'text/javascript', 
+                '.json': 'application/json',
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.svg': 'image/svg+xml',
+                '.ico': 'image/x-icon'
+            };
+            fs.readFile(filePath, (e, d) => {
+                if (e) {
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Internal Server Error');
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': types[ext] || 'application/octet-stream' });
+                res.end(d);
+            });
         });
+        return;
+    }
+
+    // Server-side page routing: Fallback to the main index.html for React Router to resolve on the client-side
+    let filePath = path.join(PATHS.PUBLIC, 'index.html');
+    fs.readFile(filePath, (e, d) => {
+        if (e) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Vite frontend build assets are not compiled. Run npm run build inside the frontend folder.');
+            return;
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(d);
     });
 }
 

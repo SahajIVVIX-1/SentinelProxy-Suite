@@ -151,35 +151,95 @@ function loadCsvNameservers() {
 }
 
 async function forwardDnsQuery(name, type) {
+    const upstreams = getActiveUpstreams();
+    if (upstreams.length === 0) {
+        throw new Error('No active DNS upstreams configured');
+    }
+
     return new Promise((resolve, reject) => {
-        const upstream = selectUpstream();
-        if (!upstream) return reject(new Error('No upstreams'));
-        const query = new Packet();
-        query.header.id = Math.floor(Math.random() * 65535);
-        query.header.rd = 1;
-        query.questions.push({ name, type, class: Packet.CLASS.IN });
+        let resolved = false;
+        let errors = [];
+        const sockets = [];
+        const timers = [];
 
-        const client = dgram.createSocket('udp4');
-        const startTime = Date.now();
-        const timeout = setTimeout(() => { client.close(); reject(new Error('Timeout')); }, 3000);
+        const cleanUp = () => {
+            timers.forEach(clearTimeout);
+            sockets.forEach(s => {
+                try { s.close(); } catch (_) {}
+            });
+        };
 
-        client.on('message', (msg) => {
-            clearTimeout(timeout);
-            client.close();
-            try {
-                const parsed = Packet.parse(msg);
-                const latencyMs = Date.now() - startTime;
+        upstreams.forEach((upstream) => {
+            const query = new Packet();
+            query.header.id = Math.floor(Math.random() * 65535);
+            query.header.rd = 1;
+            query.questions.push({ name, type, class: Packet.CLASS.IN });
+
+            const client = dgram.createSocket('udp4');
+            sockets.push(client);
+            const startTime = Date.now();
+
+            const timeout = setTimeout(() => {
+                errors.push(new Error(`Timeout from upstream ${upstream.address}`));
+                if (errors.length === upstreams.length && !resolved) {
+                    resolved = true;
+                    cleanUp();
+                    reject(new Error('All DNS upstreams timed out'));
+                }
+            }, 3000);
+            timers.push(timeout);
+
+            client.on('message', (msg) => {
+                if (resolved) return;
+                try {
+                    const parsed = Packet.parse(msg);
+                    resolved = true;
+                    cleanUp();
+
+                    const latencyMs = Date.now() - startTime;
+                    upstreamHealth.set(upstream.address, {
+                        healthy: true,
+                        latencyMs,
+                        lastChecked: new Date().toISOString()
+                    });
+
+                    resolve({ answers: parsed.answers || [], rcode: parsed.header?.rcode || 0 });
+                } catch (e) {
+                    errors.push(e);
+                    if (errors.length === upstreams.length) {
+                        resolved = true;
+                        cleanUp();
+                        reject(new Error('All DNS upstreams failed to parse response'));
+                    }
+                }
+            });
+
+            client.on('error', (err) => {
+                if (resolved) return;
+                errors.push(err);
                 upstreamHealth.set(upstream.address, {
-                    healthy: true,
-                    latencyMs,
+                    healthy: false,
+                    latencyMs: 9999,
                     lastChecked: new Date().toISOString()
                 });
-                resolve({ answers: parsed.answers || [], rcode: parsed.header?.rcode || 0 });
-            } catch (e) { reject(e); }
-        });
+                if (errors.length === upstreams.length) {
+                    resolved = true;
+                    cleanUp();
+                    reject(new Error('All DNS upstreams failed with socket errors'));
+                }
+            });
 
-        client.on('error', (err) => { clearTimeout(timeout); client.close(); reject(err); });
-        client.send(query.toBuffer(), upstream.port, upstream.address);
+            client.send(query.toBuffer(), upstream.port, upstream.address, (err) => {
+                if (err && !resolved) {
+                    errors.push(err);
+                    if (errors.length === upstreams.length) {
+                        resolved = true;
+                        cleanUp();
+                        reject(err);
+                    }
+                }
+            });
+        });
     });
 }
 

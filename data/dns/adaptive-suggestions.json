@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "nxdomainWindowMinutes": 10,
+    "nxdomainThreshold": 5,
+    "suspiciousTlds": [
+      ".zip",
+      ".mov",
+      ".top",
+      ".xyz",
+      ".link",
+      ".click",
+      ".quest",
+      ".gq",
+      ".tk"
+    ],
+    "trackerPatterns": [
+      "ads",
+      "track",
+      "pixel",
+      "analytics",
+      "telemetry"
+    ]
+  },
+  "suggestions": {
+    "dt.adsafeprotected.com": {
+      "domain": "dt.adsafeprotected.com",
+      "score": 1,
+      "reasons": [
+        "trackerPattern"
+      ],
+      "firstSeen": "2026-07-13T10:28:28.632Z",
+      "lastSeen": "2026-07-13T10:28:28.632Z",
+      "occurrences": 1,
+      "details": {
+        "pattern": "ads"
+      }
+    }
+  },
+  "ignored": {}
+}

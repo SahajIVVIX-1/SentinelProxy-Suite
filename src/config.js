@@ -55,9 +55,38 @@ module.exports = {
     },
 
     // Security - Load from environment variables
-    CA_PASSPHRASE: process.env.CA_PASSPHRASE || 'Sahaj@459#459', // Fallback for compatibility
-    SESSION_SECRET: process.env.SESSION_SECRET || 'change-this-secret',
-    JWT_SECRET: process.env.JWT_SECRET || 'change-this-jwt-secret',
+    CA_PASSPHRASE: (() => {
+        const pass = process.env.CA_PASSPHRASE;
+        if (!pass || pass.trim() === '' || pass === 'your-ca-passphrase-here') {
+            console.error('❌ CRITICAL SECURITY ERROR: CA_PASSPHRASE is not configured in .env or is set to the default placeholder.');
+            console.error('Please configure a unique, secure password for CA_PASSPHRASE in your .env file.');
+            process.exit(1);
+        }
+        if (pass === 'Sahaj@459#459') {
+            console.warn('⚠️  SECURITY WARNING: Using the default compatibility CA_PASSPHRASE ("Sahaj@459#459").');
+            console.warn('   It is highly recommended to change this to a custom value in your .env file for production.');
+        }
+        return pass;
+    })(),
+    SESSION_SECRET: (() => {
+        const sec = process.env.SESSION_SECRET;
+        if (!sec || sec === 'your-session-secret-here' || sec === 'change-this-secret' || sec.includes('your-very-secure-random')) {
+            // Allow the configured default during testing but warn if it is the template default
+            if (sec === 'your-session-secret-here' || sec === 'change-this-secret') {
+                console.error('❌ CRITICAL SECURITY ERROR: SESSION_SECRET is not configured or is using an insecure template default.');
+                process.exit(1);
+            }
+        }
+        return sec || 'change-this-secret';
+    })(),
+    JWT_SECRET: (() => {
+        const sec = process.env.JWT_SECRET;
+        if (!sec || sec === 'your-jwt-secret-here' || sec === 'change-this-jwt-secret') {
+            console.error('❌ CRITICAL SECURITY ERROR: JWT_SECRET is not configured or is using an insecure template default.');
+            process.exit(1);
+        }
+        return sec;
+    })(),
     ADMIN_INITIAL_USERNAME: process.env.ADMIN_INITIAL_USERNAME || '',
     ADMIN_INITIAL_PASSWORD: process.env.ADMIN_INITIAL_PASSWORD || '',
     DASHBOARD_HTTPS: true,

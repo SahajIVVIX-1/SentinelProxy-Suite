@@ -12,7 +12,7 @@
 
 The **Chakhdi Local Proxy & DNS Server** is a highly advanced, locally hosted network management system designed for robust traffic control, privacy, and intelligent threat mitigation. 
 
-Built with an architecture prepared for **Artificial Intelligence (AI)** and **Machine Learning (ML)** pipelines, it features dynamic ad-blocking, malicious domain filtering (powered by predictive SQLite3 database blocklists), automatic system proxy mapping, and a sleek live metrics dashboard over HTTPS—giving you real-time visual analytics natively coupled with smart threat intelligence.
+Built with a high-performance architecture, it features dynamic ad-blocking, malicious domain filtering (powered by indexed SQLite3 database blocklists), automatic system proxy mapping, and a sleek live metrics dashboard over HTTPS—giving you real-time visual analytics natively coupled with smart threat intelligence.
 
 ---
 
@@ -28,12 +28,12 @@ Built with an architecture prepared for **Artificial Intelligence (AI)** and **M
 
 ---
 
-## 🤖 Intelligence & Machine Learning (AI/ML)
+## 🛡️ Heuristics & Threat Mitigation Engine
 
-This project fundamentally embraces modern **Artificial Intelligence** paradigms to elevate standard proxying into a smart engine:
-- **LLM-Curated Threat Intelligence:** Our blocklists are engineered to integrate seamlessly with Large Language Models (LLMs), which continuously parse worldwide natural language threat reports to automatically categorize and block suspicious domains.
-- **Machine Learning (ML) Traffic Flow Analytics:** The live dashboard metrics infrastructure is designed to feed cleanly into predictive ML models, enabling the system to understand base browsing habits and instantly flag abnormal requests or statistical anomalies.
-- **Deep Learning (DL) Anomaly Detection Support:** The zero-latency websocket architecture (`socket.io`) natively supports exporting high-frequency telemetry data to external Deep Learning pipelines—ideal for real-time identification of Domain Generation Algorithms (DGA) and recognizing zero-day threat patterns based on neural network inferences.
+This project implements smart heuristics and robust local filtering to keep your local network clean and secure:
+- **Heuristic Pattern Blocklists:** Inspects incoming DNS queries for suspicious top-level domains (such as `.zip`, `.mov`, `.top`, `.xyz`) and common tracker substrings (`ads`, `track`, `pixel`, `analytics`) before they are resolved.
+- **SQLite3-Indexed Blocklists:** Compiles and indices large hosts blocklists into SQLite3 tables for high-performance, low-latency lookups during active proxying.
+- **Real-Time Telemetry & Log Export:** Uses WebSocket-based streaming (`socket.io`) to forward outbound query logs directly to the live dashboard. This structured query format can easily be integrated into SIEM systems, custom log forwarders, or external analytics engines.
 
 ---
 
