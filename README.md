@@ -134,6 +134,8 @@ To allow other client PCs on your network to use this system as a DNS Resolver, 
 ```powershell
 netsh advfirewall firewall add rule name="Chakhdi DNS UDP 53" dir=in action=allow protocol=UDP localport=53
 netsh advfirewall firewall add rule name="Chakhdi DNS TCP 53" dir=in action=allow protocol=TCP localport=53
+netsh advfirewall firewall delete rule name="Chakhdi DNS UDP 53"
+netsh advfirewall firewall delete rule name="Chakhdi DNS TCP 53"
 ```
 
 ### For Connected Client PCs:
